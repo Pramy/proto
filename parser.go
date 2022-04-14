@@ -115,14 +115,20 @@ func (p *Parser) next() (pos scanner.Position, tok token, lit string) {
 		p.buf = nil
 		return vals.pos, vals.tok, vals.lit
 	}
-	ch := p.scanner.Scan()
-	if ch == scanner.EOF {
-		return p.scanner.Position, tEOF, ""
-	}
-	lit = p.scanner.TokenText()
-	// single quote needs additional scanning
-	if stringWithSingleQuote == lit {
-		return p.nextSingleQuotedString()
+	for {
+		ch := p.scanner.Scan()
+		if ch == scanner.EOF {
+			return p.scanner.Position, tEOF, ""
+		}
+		lit = p.scanner.TokenText()
+		// single quote needs additional scanning
+		if stringWithSingleQuote == lit {
+			return p.nextSingleQuotedString()
+		}
+		if !isComment(lit) {
+			break
+		}
+		//fmt.Println(lit)
 	}
 	return p.scanner.Position, asToken(lit), lit
 }
